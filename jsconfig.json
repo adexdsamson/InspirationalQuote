@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@ui": [
+        "components/ui"
+      ],
+      "@tailwind": ["./tailwind.js"],
+      "@pageComponents": [
+        "components/pages"
+      ],
+      "@libs": [
+        "libs/"
+      ],
+      "@screens": [
+        "screens/"
+      ]
+    }
+  }
+}

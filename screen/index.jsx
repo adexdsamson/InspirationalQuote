@@ -18,6 +18,7 @@ import { useCallback, useEffect, useReducer, useState } from "react";
 import { reducer, initialState, ACTION_TYPE } from "./reducer";
 import { Blurhash } from "react-native-blurhash";
 import { runOnJS } from "react-native-reanimated";
+import { useInterval, useTimeout } from "usehooks-ts";
 
 const { height, width } = Dimensions.get("screen");
 
@@ -62,20 +63,24 @@ export default function Screen() {
 
   const isFetch = isCloser(state.currentIndex, state.quotes?.length, 3);
 
+  let test = 1
+
   const handleQuotes = (payload) => {
-    console.log("isFetch", payload);
-    if (payload) {
-      Promise.all([refetch(), refetchPhotos()]);
-      dispatch({ type: ACTION_TYPE.RESET_INDEX });
-      // fetch different page
-      return;
-    }
+    // console.log("isFetch", isFetch, test++);
+    // if (isFetch) {
+    //   Promise.all([refetch(), refetchPhotos()]);
+    //   dispatch({ type: ACTION_TYPE.RESET_INDEX });
+    //   // fetch different page
+    //   return;
+    // }
 
     setShowImage(false);
     dispatch({
       type: ACTION_TYPE.CURRENT_INDEX,
     });
   };
+
+  useInterval(() => handleQuotes(), 60000);
 
   useEffect(() => {
     if (data && state.quotes.length === 0) {
@@ -131,7 +136,7 @@ export default function Screen() {
             Photo by <Text style={tw`text-primary`}>{photo?.user?.name}</Text>
           </Text>
 
-          <AnimatedCircle isFetch={isFetch} onCompleted={handleQuotes} />
+          <AnimatedCircle isFetch={isFetch} />
         </View>
       </LinearGradient>
     </View>

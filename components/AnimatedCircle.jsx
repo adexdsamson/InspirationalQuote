@@ -17,7 +17,7 @@ import tw from "../tailwind";
 import { ReText } from 'react-native-redash';
 
 const { width, height } = Dimensions.get("screen");
-const size = width - 360;
+const size = width - 370;
 const strokeWidth = 6;
 const { PI } = Math;
 
@@ -31,9 +31,15 @@ export const AnimatedCircle = ({ onCompleted, isFetch }) => {
   const circumference = r * 2 * PI;
   const progress = useSharedValue(0);
 
+  let test = 1
+
+  const handleCallback = () => {
+    // onCompleted()
+  }
+
   useEffect(() => {
     progress.value = withRepeat(
-      withTiming(1, { duration: 60000 }, () => runOnJS(onCompleted)(isFetch)),
+      withTiming(1, { duration: 60000 }),
       -1,
       false
     );

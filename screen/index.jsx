@@ -1,30 +1,14 @@
 import tw from "../tailwind";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Dimensions,
-  Image,
-  PixelRatio,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Image, PixelRatio, Text, View } from "react-native";
 import { AnimatedCircle, Tag, Typography } from "../components";
-import {
-  useGetRandomPhotosQuery,
-  useGetRandomQuotesQuery,
-} from "../store/api";
+import { useGetRandomPhotosQuery, useGetRandomQuotesQuery } from "../store/api";
 import { useEffect, useReducer, useState } from "react";
 import { reducer, initialState, ACTION_TYPE } from "./reducer";
 import { Blurhash } from "react-native-blurhash";
 import { isValueCloserThanThreshold } from "../utils/helpers";
 
-const { height, width } = Dimensions.get("screen");
-
-function isCloser(value, total, threshold) {
-  return (
-    Math.abs(total - value) <= 3 &&
-    Math.abs(total - value) < Math.abs(total - threshold)
-  );
-}
+const { width } = Dimensions.get("screen");
 
 export default function Screen() {
   const [showImage, setShowImage] = useState(false);
@@ -40,7 +24,7 @@ export default function Screen() {
     isLoading: isLoadingPhotos,
   } = useGetRandomPhotosQuery(
     {
-      client_id: "",
+      client_id: process.env.unSplash_access_key,
     },
     {
       selectFromResult: ({ data, ...values }) => ({
@@ -50,13 +34,11 @@ export default function Screen() {
     }
   );
 
-
   const isFetch = isValueCloserThanThreshold(
     state.currentIndex,
     state.quotes?.length,
     3
   );
-
 
   const handleQuotes = () => {
     setShowImage(false);
@@ -66,7 +48,7 @@ export default function Screen() {
   };
 
   useEffect(() => {
-    // Only updates when there's no `quotes` and `data` is 
+    // Only updates when there's no `quotes` and `data` is
     // available
     if (data && state.quotes.length === 0) {
       dispatch({ type: ACTION_TYPE.SET_QUOTES, payload: data });
@@ -81,7 +63,7 @@ export default function Screen() {
       dispatch({ type: ACTION_TYPE.RESET_INDEX });
       return;
     }
-  }, [isFetch])
+  }, [isFetch]);
 
   const photo = photos?.[state.currentIndex];
   const quote = state.quotes?.[state.currentIndex];
@@ -113,8 +95,12 @@ export default function Screen() {
           <Typography variant="body" style={tw`text-accent text-right mb-2`}>
             Inspiration Quotes
           </Typography>
-          <Typography variant="body2" style={tw`text-white`}>{quote?.author}</Typography>
-          <Typography variant="header" style={tw`text-white/60 mb-4`}>{quote?.content}</Typography>
+          <Typography variant="body2" style={tw`text-white`}>
+            {quote?.author}
+          </Typography>
+          <Typography variant="header" style={tw`text-white/60 mb-4`}>
+            {quote?.content}
+          </Typography>
 
           <View style={tw`flex-row`}>
             {quote?.tags?.map?.((tag, index) => (
@@ -128,7 +114,10 @@ export default function Screen() {
           style={tw`h-20 w-full flex-row px-4 justify-between items-center`}
         >
           <Typography variant="body" style={tw`text-white text-right mb-2`}>
-            Photo by <Typography variant="body" style={tw`text-primary mb-0`}>{photo?.user?.name}</Typography>
+            Photo by{" "}
+            <Typography variant="body" style={tw`text-primary mb-0`}>
+              {photo?.user?.name}
+            </Typography>
           </Typography>
 
           <AnimatedCircle onCompleted={handleQuotes} />
@@ -137,4 +126,3 @@ export default function Screen() {
     </View>
   );
 }
-

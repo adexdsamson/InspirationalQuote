@@ -40,7 +40,7 @@ export default function Screen() {
     isLoading: isLoadingPhotos,
   } = useGetRandomPhotosQuery(
     {
-      client_id: "-pMzFtvXVPDXncpPnEz1x3tro1xylsO-_nMMFQwVPKQ",
+      client_id: "",
     },
     {
       selectFromResult: ({ data, ...values }) => ({

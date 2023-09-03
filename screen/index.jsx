@@ -4,21 +4,18 @@ import {
   Dimensions,
   Image,
   PixelRatio,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
-import { AnimatedCircle } from "../components/AnimatedCircle";
+import { AnimatedCircle, Tag, Typography } from "../components";
 import {
-  useGetQuotesQuery,
   useGetRandomPhotosQuery,
   useGetRandomQuotesQuery,
 } from "../store/api";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { reducer, initialState, ACTION_TYPE } from "./reducer";
 import { Blurhash } from "react-native-blurhash";
-import { runOnJS } from "react-native-reanimated";
-import { useInterval, useTimeout } from "usehooks-ts";
+import { isValueCloserThanThreshold } from "../utils/helpers";
 
 const { height, width } = Dimensions.get("screen");
 
@@ -31,7 +28,6 @@ function isCloser(value, total, threshold) {
 
 export default function Screen() {
   const [showImage, setShowImage] = useState(false);
-  const [quotes, setQuotes] = useState([]);
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isError, isLoading, refetch, data, error } = useGetRandomQuotesQuery({
     // page: 1,
@@ -54,42 +50,41 @@ export default function Screen() {
     }
   );
 
-  // console.log(
-  //   "count",
-  //   isCloser(state.currentIndex, state.quotes?.length, 3),
-  //   state.currentIndex,
-  //   state.quotes.length
-  // );
 
-  const isFetch = isCloser(state.currentIndex, state.quotes?.length, 3);
+  const isFetch = isValueCloserThanThreshold(
+    state.currentIndex,
+    state.quotes?.length,
+    3
+  );
 
-  let test = 1
 
-  const handleQuotes = (payload) => {
-    // console.log("isFetch", isFetch, test++);
-    // if (isFetch) {
-    //   Promise.all([refetch(), refetchPhotos()]);
-    //   dispatch({ type: ACTION_TYPE.RESET_INDEX });
-    //   // fetch different page
-    //   return;
-    // }
-
+  const handleQuotes = () => {
     setShowImage(false);
     dispatch({
       type: ACTION_TYPE.CURRENT_INDEX,
     });
   };
 
-  useInterval(() => handleQuotes(), 60000);
-
   useEffect(() => {
+    // Only updates when there's no `quotes` and `data` is 
+    // available
     if (data && state.quotes.length === 0) {
       dispatch({ type: ACTION_TYPE.SET_QUOTES, payload: data });
     }
   }, [data]);
 
+  useEffect(() => {
+    // Triggers an api call, when the quotes is closer
+    // to the end of the total quotes.
+    if (isFetch && state.quotes.length !== 0) {
+      Promise.all([refetch(), refetchPhotos()]);
+      dispatch({ type: ACTION_TYPE.RESET_INDEX });
+      return;
+    }
+  }, [isFetch])
+
   const photo = photos?.[state.currentIndex];
-  const quote = state.quotes?.[0];
+  const quote = state.quotes?.[state.currentIndex];
 
   if (isLoading || isLoadingPhotos) {
     return <Text>Loading.....</Text>;
@@ -115,11 +110,11 @@ export default function Screen() {
         style={tw`absolute h-96 bottom-0 w-full`}
       >
         <View style={[tw`px-4 justify-end h-[80%]`]}>
-          <Text style={tw`text-sm text-accent text-right mb-2`}>
+          <Typography variant="body" style={tw`text-accent text-right mb-2`}>
             Inspiration Quotes
-          </Text>
-          <Text style={tw`text-xl text-white mb-2`}>{quote?.author}</Text>
-          <Text style={tw`text-2xl text-white/60 mb-2`}>{quote?.content}</Text>
+          </Typography>
+          <Typography variant="body2" style={tw`text-white`}>{quote?.author}</Typography>
+          <Typography variant="header" style={tw`text-white/60 mb-4`}>{quote?.content}</Typography>
 
           <View style={tw`flex-row`}>
             {quote?.tags?.map?.((tag, index) => (
@@ -132,23 +127,14 @@ export default function Screen() {
         <View
           style={tw`h-20 w-full flex-row px-4 justify-between items-center`}
         >
-          <Text style={tw`text-sm text-white text-right mb-2`}>
-            Photo by <Text style={tw`text-primary`}>{photo?.user?.name}</Text>
-          </Text>
+          <Typography variant="body" style={tw`text-white text-right mb-2`}>
+            Photo by <Typography variant="body" style={tw`text-primary mb-0`}>{photo?.user?.name}</Typography>
+          </Typography>
 
-          <AnimatedCircle isFetch={isFetch} />
+          <AnimatedCircle onCompleted={handleQuotes} />
         </View>
       </LinearGradient>
     </View>
   );
 }
 
-const Tag = ({ name }) => {
-  return (
-    <View
-      style={tw`px-2 h-7 justify-center items-center bg-secondary rounded mr-2`}
-    >
-      <Text style={tw`text-white `}>{name}</Text>
-    </View>
-  );
-};

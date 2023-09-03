@@ -1,24 +1,19 @@
-import { Dimensions, View, TouchableOpacity } from "react-native";
+import { Dimensions, View } from "react-native";
 import { Svg, Circle } from "react-native-svg";
 import Animated, {
   useAnimatedProps,
-  withSpring,
-  useAnimatedStyle,
   useSharedValue,
-  withDelay,
   withTiming,
-  interpolate,
   withRepeat,
-  useDerivedValue,
   runOnJS,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import tw from "../tailwind";
-import { ReText } from 'react-native-redash';
+import { ReText } from "react-native-redash";
 
 const { width, height } = Dimensions.get("screen");
 const size = width - 370;
-const strokeWidth = 6;
+const strokeWidth = 3;
 const { PI } = Math;
 
 const r = (size - strokeWidth) / 2;
@@ -31,36 +26,24 @@ export const AnimatedCircle = ({ onCompleted, isFetch }) => {
   const circumference = r * 2 * PI;
   const progress = useSharedValue(0);
 
-  let test = 1
-
-  const handleCallback = () => {
-    // onCompleted()
-  }
-
+  /* The `useEffect` hook is used to perform side effects in a React component. In this case, it is used to start the animation of the progress circle. */
   useEffect(() => {
     progress.value = withRepeat(
-      withTiming(1, { duration: 60000 }),
+      withTiming(1, { duration: 60000 }, () => runOnJS(onCompleted)()),
       -1,
       false
     );
   }, []);
 
-
   const animatedProps = useAnimatedProps(() => ({
     strokeDashoffset: circumference * progress.value,
   }));
-
-  const progressText = useDerivedValue(() => {
-    return `${Math.floor(progress.value * 100)}`
-  })
-
-  // #44486F
 
   return (
     <View style={tw`relative`}>
       <Svg width={size} height={size} style={tw`relative z-10`}>
         <Circle
-          stroke="#303858"
+          stroke="#F6EEE0"
           fill="none"
           {...{
             strokeWidth,
@@ -71,7 +54,7 @@ export const AnimatedCircle = ({ onCompleted, isFetch }) => {
         />
         <AnimatedCircles
           strokeDasharray={circumference}
-          stroke={"#A6E1FA"}
+          stroke={"#C38370"}
           {...{
             animatedProps,
             strokeWidth,

@@ -47,6 +47,7 @@ export const unsplashApi = createApi({
           client_id,
           orientation: "portrait",
           count: 20,
+          topics: "inspiration, wisdom, success, happiness, friendship",
         },
       }),
     }),

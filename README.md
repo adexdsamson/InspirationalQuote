@@ -2,7 +2,7 @@
 
 # Description
 
-The ultimate companion for a daily boost of motivation and encouragement. InspireMe is a beautifully designed mobile app that brings you a world of inspirational quotes at your fingertips, right when you need them most.
+The ultimate companion for a daily boost of motivation and encouragement. InspirationQuotes is a beautifully designed mobile app that brings you a world of inspirational quotes at your fingertips, right when you need them most.
 
 # Project Structure
 ```
